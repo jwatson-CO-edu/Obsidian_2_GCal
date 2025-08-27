@@ -15,6 +15,7 @@
 # [START calendar_quickstart]
 import datetime
 import os.path
+from pprint import pprint
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -35,7 +36,7 @@ def main():
   # created automatically when the authorization flow completes for the first
   # time.
   if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("keys/google_calendar.json", SCOPES)
+    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
   # If there are no (valid) credentials available, let the user log in.
   if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
@@ -75,10 +76,13 @@ def main():
     # Prints the start and name of the next 10 events
     for event in events:
       start = event["start"].get("dateTime", event["start"].get("date"))
-      print(start, event["summary"])
+      print( start, event["summary"] )
+      pprint( event )
+      print()
 
   except HttpError as error:
     print(f"An error occurred: {error}")
+    
 
 
 if __name__ == "__main__":
