@@ -1,3 +1,6 @@
+# python3.11 -m pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib --user
+
+########## INIT ####################################################################################
 import os, datetime
 
 from google.auth.transport.requests import Request
@@ -10,6 +13,10 @@ _SECRET_GCAL_KEY = "keys/google_calendar.json"
 _SESSION_TOKEN   = "token.json"
 # If modifying these scopes, delete the file token.json.
 _SCOPES = ["https://www.googleapis.com/auth/calendar.events",] # View and edit events on all your calendars.
+
+
+
+########## GOOGLE CALENDAR #########################################################################
 
 class GCalManager:
     """ Handles Google Calendar Operations """
