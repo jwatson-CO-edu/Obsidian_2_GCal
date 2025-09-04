@@ -9,8 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-_SECRET_GCAL_KEY = "keys/google_calendar.json"
-_SESSION_TOKEN   = "token.json"
+
 # If modifying these scopes, delete the file token.json.
 _SCOPES = ["https://www.googleapis.com/auth/calendar.events",] # View and edit events on all your calendars.
 
@@ -20,7 +19,7 @@ _SCOPES = ["https://www.googleapis.com/auth/calendar.events",] # View and edit e
 
 class GCalManager:
     """ Handles Google Calendar Operations """
-    def __init__( self, secretFile : str = _SECRET_GCAL_KEY, sessionToken : str = _SESSION_TOKEN ):
+    def __init__( self, secretFile : str, sessionToken : str ):
         self.creds   = None
         self.flow    = None
         self.service = None
