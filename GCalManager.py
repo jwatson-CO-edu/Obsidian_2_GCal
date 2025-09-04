@@ -19,23 +19,19 @@ _SCOPES = ["https://www.googleapis.com/auth/calendar.events",] # View and edit e
 
 class GCalManager:
     """ Handles Google Calendar Operations """
-    def __init__( self, secretFile : str, sessionToken : str ):
-        self.creds   = None
-        self.flow    = None
-        self.service = None
-        if os.path.exists( sessionToken ):
-            self.creds = Credentials.from_authorized_user_file( sessionToken, _SCOPES )
+
+    def authorize( self ):
+        if os.path.exists( self.sessnTkn ):
+            self.creds = Credentials.from_authorized_user_file( self.sessnTkn, _SCOPES )
         # If there are no (valid) credentials available, let the user log in.
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
-                self.flow = InstalledAppFlow.from_client_secrets_file(
-                    secretFile, _SCOPES
-                )
-            self.creds = self.flow.run_local_server( port = 0 )
+                self.flow  = InstalledAppFlow.from_client_secrets_file( self.scrtPath, _SCOPES )
+                self.creds = self.flow.run_local_server( port = 0 )
             # Save the credentials for the next run
-            with open( sessionToken, "w" ) as token:
+            with open( self.sessnTkn, "w" ) as token:
                 token.write( self.creds.to_json() )
         try:
             self.service = build( "calendar", "v3", credentials = self.creds )
@@ -43,9 +39,23 @@ class GCalManager:
             raise RuntimeError( f"An error occurred!: {error}" )
         
 
+    def __init__( self, secretFile : str, sessionToken : str ):
+        """ Init auth """
+        self.scrtPath = secretFile
+        self.sessnTkn = sessionToken
+        self.creds    = None
+        self.flow     = None
+        self.service  = None
+        # Remove token from the last run
+        if os.path.exists( sessionToken ):
+            os.remove( sessionToken )
+        # Get auth
+        self.authorize()
+        
+
     def get_N_last_events( self, N = 10 ) -> list[dict]:
         """ Call the Calendar API and get the last `N` events """
-        now = datetime.datetime.now(tz=datetime.timezone.utc).isoformat()
+        now = datetime.datetime.now( tz = datetime.timezone.utc ).isoformat()
         print("Getting the upcoming 10 events")
         events_result = (
             self.service.events().list(
@@ -59,11 +69,9 @@ class GCalManager:
         return events_result.get( "items", [] )
     
 
-    def create_event( self,
-                      title : str = "Action Item -or- Meeting",
-                      loc   : str = "Your Desk",
-                      desc  : str = "Action Item -or- Meeting, Please do this!",
-                      ):
+    def create_event( self, title : str = "Action Item -or- Meeting",
+                            loc   : str = "Your Desk",
+                            desc  : str = "Action Item -or- Meeting, Please do this!" ):
         """ Add an event to GCal """
         event = {
             'summary': title,
